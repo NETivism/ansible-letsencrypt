@@ -9,7 +9,8 @@
   letsencrypt_command: "{{ letsencrypt_venv }}/bin/letsencrypt -n --agree-tos  {% if letsencrypt_rsa_key_size is defined %}--rsa-key-size {{ letsencrypt_rsa_key_size }}{% endif %} --text {% for domain in letsencrypt_cert_domains %}-d {{ domain }} {% endfor %}--email {{ letsencrypt_email }} {% if letsencrypt_server is defined %}--server {{ letsencrypt_server }}{% endif %} --expand"
   letsencrypt_renewal_frequency:
     day: "*"
-    hour: 0
+    hour: 6
     minute: 0
+    weekday: 0
   letsencrypt_renewal_command_args: ''
   letsencrypt_standalone_command_args: ''
