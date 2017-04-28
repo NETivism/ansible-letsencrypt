@@ -7,6 +7,6 @@
   letsencrypt_renewal_frequency:
     day: "*"
     hour: 6
-    minute: 0
+    minute: 31
     weekday: 0
   letsencrypt_renewal_command_args: '--renew-hook "service nginx restart"'
