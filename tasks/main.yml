@@ -3,6 +3,7 @@
     become: yes
     cron:
       cron_file: "certbot"
+      user: "root"
       name: "Let's Encrypt Renewal"
       day: "{{ letsencrypt_renewal_frequency.day }}"
       hour: "{{ letsencrypt_renewal_frequency.hour }}"
