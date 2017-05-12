@@ -1,15 +1,12 @@
 ---
-  - name: Install renewal cron
+  - name: Remove renewal cron
     become: yes
     cron:
       cron_file: "certbot"
       user: "root"
       name: "Let's Encrypt Renewal"
-      day: "{{ letsencrypt_renewal_frequency.day }}"
-      hour: "{{ letsencrypt_renewal_frequency.hour }}"
-      minute: "{{ letsencrypt_renewal_frequency.minute }}"
-      job: "test -x /usr/bin/certbot && perl -e 'sleep(int(rand(300)))' && /usr/bin/letsencrypt renew --quiet {{ letsencrypt_renewal_command_args }}"
-
+      state: "absent"
+  
   - name: Add jessie backports repository
     apt_repository:
       repo: deb http://ftp.debian.org/debian jessie-backports main
@@ -24,6 +21,13 @@
       default_release: jessie-backports
     tags: install
     become: yes
+
+  - name: Modify certbot systemd service (Debian)
+    lineinfile:
+      path: /lib/systemd/system/certbot.service
+      state: present
+      regexp: '^ExecStart='
+      line: 'ExecStart=/usr/bin/certbot -q renew --post-hook "/bin/systemctl restart nginx"'
 
   - name: Ensure webroot exists
     file:
