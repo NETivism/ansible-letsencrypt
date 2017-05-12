@@ -23,11 +23,16 @@
     become: yes
 
   - name: Modify certbot systemd service (Debian)
+    become: yes
     lineinfile:
-      path: /lib/systemd/system/certbot.service
+      dest: /lib/systemd/system/certbot.service
       state: present
       regexp: '^ExecStart='
       line: 'ExecStart=/usr/bin/certbot -q renew --post-hook "/bin/systemctl restart nginx"'
+
+  - name: Realod systemd service
+    become: yes
+    command: systemctl daemon-reload
 
   - name: Ensure webroot exists
     file:
