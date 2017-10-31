@@ -1,12 +1,4 @@
 ---
-  - name: Remove renewal cron
-    become: yes
-    cron:
-      cron_file: "certbot"
-      user: "root"
-      name: "Let's Encrypt Renewal"
-      state: "absent"
-  
   - name: Add jessie backports repository
     apt_repository:
       repo: deb http://ftp.debian.org/debian jessie-backports main
