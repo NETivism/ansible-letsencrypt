@@ -3,6 +3,7 @@
     apt_repository:
       repo: deb http://ftp.debian.org/debian jessie-backports main
       state: present
+    when:  (ansible_distribution == "Debian" and ansible_distribution_major_version == "8")
     tags: install
     become: yes
 
@@ -10,7 +11,6 @@
     apt:
       name: certbot
       state: present
-      default_release: jessie-backports
     tags: install
     become: yes
 
@@ -21,6 +21,7 @@
       state: present
       regexp: '^ExecStart='
       line: 'ExecStart=/usr/bin/certbot -q renew --post-hook "/bin/systemctl restart nginx"'
+    tags: install
 
   - name: Realod systemd service
     become: yes
