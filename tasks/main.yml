@@ -8,9 +8,7 @@
     become: yes
 
   - name: Install certbot pin on jessie-backports
-    apt:
-      name: certbot
-      state: present
+    shell: apt-get install certbot -t jessie-backports
     tags: install
     become: yes
 
