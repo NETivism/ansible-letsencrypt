@@ -6,13 +6,6 @@
     when:  (ansible_distribution == "Debian" and ansible_distribution_major_version == "8")
     tags: install
     become: yes
-  - name: Add stretch backports repository
-    apt_repository:
-      repo: deb http://ftp.debian.org/debian stretch-backports main
-      state: present
-    when:  (ansible_distribution == "Debian" and ansible_distribution_major_version == "9")
-    tags: install
-    become: yes
 
   - name: Install certbot pin on jessie-backports
     shell: apt-get install certbot -t jessie-backports
@@ -20,8 +13,8 @@
     tags: install
     become: yes
 
-  - name: Install certbot pin on stretch-backports
-    shell: apt-get install certbot -t stretch-backports
+  - name: Install certbot pin on stretch
+    shell: apt-get install certbot
     when:  (ansible_distribution == "Debian" and ansible_distribution_major_version == "9")
     tags: install
     become: yes
