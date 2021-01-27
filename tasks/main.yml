@@ -13,9 +13,15 @@
     tags: install
     become: yes
 
-  - name: Install certbot pin on stretch
+  - name: Install certbot on stretch
     shell: apt-get install certbot --yes
     when:  (ansible_distribution == "Debian" and ansible_distribution_major_version == "9")
+    tags: install
+    become: yes
+
+  - name: Install certbot on buster
+    shell: apt-get install certbot --yes
+    when:  (ansible_distribution == "Debian" and ansible_distribution_major_version == "10")
     tags: install
     become: yes
 
