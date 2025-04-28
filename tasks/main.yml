@@ -33,6 +33,14 @@
       state: present
     tags: install
 
+  - name: Install certbot pin on bookworm
+    when:  (ansible_distribution == "Debian" and ansible_distribution_major_version == "12")
+    become: yes
+    apt:
+      pkg: "certbot"
+      state: present
+    tags: install
+
   - name: Modify certbot systemd service (Debian)
     become: yes
     lineinfile:
