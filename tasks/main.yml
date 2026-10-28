@@ -25,20 +25,36 @@
     tags: install
     become: yes
 
-  - name: Install certbot pin on bullseye
-    when:  (ansible_distribution == "Debian" and ansible_distribution_major_version == "11")
+  # One task from bullseye on. The branches above differ in how certbot is
+  # fetched; from 11 onwards it is a plain package in main, so naming 11, 12
+  # and 13 separately is the same task three times and needs a fourth for the
+  # next release. Debian 13 had no branch at all until 2026-08-21, which meant
+  # the role installed no certbot on trixie and then went on to ask certbot
+  # for a certificate anyway.
+  - name: Install certbot on bullseye and newer
+    when:  (ansible_distribution == "Debian" and
+            ansible_distribution_major_version | int >= 11)
     become: yes
     apt:
       pkg: "certbot"
       state: present
     tags: install
 
-  - name: Install certbot pin on bookworm
-    when:  (ansible_distribution == "Debian" and ansible_distribution_major_version == "12")
+  # The post-hook lives in a drop-in, not in the packaged unit file.
+  # /lib/systemd/system belongs to the certbot package: an edit there holds
+  # until the package is upgraded, and then dpkg restores its own copy and the
+  # hook is gone without a word. Renewal still succeeds, nginx still serves
+  # the old certificate until something happens to restart it.
+  #
+  # Measured 2026-08-21: vps-coolloud (bullseye, certbot 1.12.0) had the hook
+  # and dpkg -V reported the unit modified. The same host, cloned and upgraded
+  # to trixie (certbot 4.0.0), had the stock unit and a clean dpkg -V.
+  - name: Certbot drop-in directory
     become: yes
-    apt:
-      pkg: "certbot"
-      state: present
+    file:
+      path: /etc/systemd/system/certbot.service.d
+      state: directory
+      mode: '0755'
     tags: install
 
   - name: Install certbot on trixie
@@ -50,12 +66,19 @@
     tags: install
 
   - name: Modify certbot systemd service (Debian)
+  # The empty ExecStart= is required rather than decorative: certbot.service
+  # is Type=oneshot, where repeated ExecStart= lines accumulate into a
+  # sequence of commands. Without the reset this drop-in would add a second
+  # certbot run instead of replacing the first.
+  - name: Certbot post-hook as a drop-in that survives package upgrades
     become: yes
-    lineinfile:
-      dest: /lib/systemd/system/certbot.service
-      state: present
-      regexp: '^ExecStart='
-      line: 'ExecStart=/usr/bin/certbot -q renew --post-hook "/bin/systemctl restart nginx"'
+    copy:
+      dest: /etc/systemd/system/certbot.service.d/override.conf
+      mode: '0644'
+      content: |
+        [Service]
+        ExecStart=
+        ExecStart=/usr/bin/certbot -q renew --post-hook "/bin/systemctl restart nginx"
     tags: install
 
   - name: Realod systemd service
