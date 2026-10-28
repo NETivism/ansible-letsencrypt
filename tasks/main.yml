@@ -41,6 +41,14 @@
       state: present
     tags: install
 
+  - name: Install certbot on trixie
+    when:  (ansible_distribution == "Debian" and ansible_distribution_major_version == "13")
+    become: yes
+    apt:
+      pkg: "certbot"
+      state: present
+    tags: install
+
   - name: Modify certbot systemd service (Debian)
     become: yes
     lineinfile:
